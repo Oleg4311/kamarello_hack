@@ -3,6 +3,7 @@ import {createRoot} from 'react-dom/client';
 import {
   Activity,
   CheckCircle2,
+  X,
   Download,
   FileSpreadsheet,
   ScanLine,
@@ -74,6 +75,13 @@ function App() {
     setFile(selected);
     setJob(null);
     setMessage('');
+  };
+
+  const clearSelection = () => {
+    setFile(null);
+    setJob(null);
+    setMessage('');
+    if (inputRef.current) inputRef.current.value = '';
   };
 
   const upload = useCallback(async () => {
@@ -157,6 +165,7 @@ function App() {
               <div className="actions">
                 <button onClick={upload} disabled={busy}>{busy ? 'Загрузка...' : 'Запустить анализ'}</button>
                 <button className="secondary" onClick={() => inputRef.current?.click()}>Заменить</button>
+                <button className="secondary danger" onClick={clearSelection} disabled={busy}><X size={16}/>Очистить</button>
               </div>
             </div>
           )}

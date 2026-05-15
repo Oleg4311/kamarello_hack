@@ -182,6 +182,11 @@ button:disabled {
   color: #172033;
 }
 
+.danger {
+  background: #fff1f3;
+  color: #b42318;
+}
+
 .error {
   padding: 10px 12px;
   border-radius: 8px;
