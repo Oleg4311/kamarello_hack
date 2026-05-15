@@ -2,14 +2,14 @@ services:
   backend:
     build: ./backend
     ports:
-      - "8000:8000"
+      - "8765:8000"
     volumes:
       - ./backend/storage:/app/storage
   frontend:
     build: ./frontend
     ports:
-      - "5173:80"
+      - "5174:80"
     environment:
-      - VITE_API_URL=http://localhost:8000
+      - VITE_API_URL=http://localhost:8765
     depends_on:
       - backend

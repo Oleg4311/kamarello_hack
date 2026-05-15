@@ -30,6 +30,11 @@ env/
 backend/storage/
 backend/app/**/__pycache__/
 
+# Local detector runtime data
+price_tag_detector/input_videos/
+price_tag_detector/models/
+price_tag_detector/output/crops/
+
 # Node / Vite
 node_modules/
 frontend/node_modules/

@@ -21,7 +21,7 @@ cd backend
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8765
 ```
 
 ### Frontend
@@ -32,7 +32,7 @@ npm install
 npm run dev
 ```
 
-Открыть: http://localhost:5173
+Открыть: http://localhost:5174
 
 ## Запуск через Docker
 
@@ -40,7 +40,7 @@ npm run dev
 docker compose up --build
 ```
 
-Открыть: http://localhost:5173
+Открыть: http://localhost:5174
 
 ## Замена mock на реальную нейросеть
 
@@ -56,7 +56,7 @@ docker compose up --build
 
 - React + Vite SPA в `frontend/src/main.tsx`.
 - Первый экран сразу является рабочим инструментом: загрузка видео, локальное video-preview, запуск анализа, прогресс пайплайна, метрики, превью первых строк результата и скачивание CSV/XLSX.
-- API-адрес задается через `VITE_API_URL`, по умолчанию используется `http://localhost:8000`.
+- API-адрес задается через `VITE_API_URL`, по умолчанию используется `http://localhost:8765`.
 
 ### Backend
 
@@ -65,9 +65,10 @@ docker compose up --build
 - `GET /api/jobs/{job_id}` возвращает статус, прогресс, метрики, ссылки на отчеты и `preview_rows` для табличного просмотра на фронте.
 - `GET /api/jobs/{job_id}/download.csv` и `/download.xlsx` отдают готовые файлы из `backend/storage/reports`.
 - Путь к sample-данным можно переопределить переменной окружения `LENTA_SAMPLE_DATA_DIR`; если она не задана, используется `backend/sample_data`.
+- Перед sample/mock backend пробует запустить CV-детектор из `price_tag_detector`: YOLOv8n + tracking + выбор самого резкого crop. Настройки: `LENTA_USE_CV_DETECTOR`, `LENTA_DETECTOR_CPU`, `LENTA_DETECTOR_CONF`, `LENTA_DETECTOR_IOU`, `LENTA_DETECTOR_MODEL_PATH`.
 
 ### Что пока не является боевой CV/OCR-частью
 
-- Реальная детекция ценников, OCR и разбор QR пока заменены sample/mock adapter в `backend/app/services/mock_model.py`.
-- Если загружается видео с именем из набора данных, backend возвращает соответствующий CSV и нормализует все 29 колонок задания.
-- Если совпадения по имени нет, генерируется демонстрационный результат с тем же выходным контрактом.
+- Детекция bbox уже подключена через `price_tag_detector`, если установлены зависимости и доступны веса YOLO.
+- OCR текста и разбор QR пока не реализованы: для строк от CV-детектора заполняются `filename`, `frame_timestamp`, `x_min`, `y_min`, `x_max`, `y_max`, а текстовые/ценовые поля остаются пустыми.
+- Если CV-детектор недоступен или не нашел объектов, backend использует sample CSV по имени видео; если совпадения по имени нет, генерируется демонстрационный результат с тем же выходным контрактом.

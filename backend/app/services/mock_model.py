@@ -4,6 +4,8 @@ import time
 from pathlib import Path
 import pandas as pd
 
+from app.services.cv_detector_adapter import try_analyze_with_cv_detector
+
 REQUIRED_COLUMNS = [
     'filename','product_name','price_default','price_card','price_discount','barcode','discount_amount','id_sku',
     'print_datetime','code','additional_info','color','special_symbols','frame_timestamp','x_min','y_min','x_max','y_max',
@@ -47,7 +49,17 @@ def _find_sample_for_video(video_name: str, sample_dir: Path) -> Path | None:
     return random.choice(all_csv) if all_csv else None
 
 def analyze_video(video_path: Path, sample_dir: Path, progress_callback=None) -> pd.DataFrame:
-    # Stub for future CV/OCR pipeline. Replace this function with a real neural network adapter.
+    try:
+        detected = try_analyze_with_cv_detector(video_path, progress_callback)
+        if detected is not None and not detected.empty:
+            detected.attrs['mode'] = 'cv-detector-yolov8-tracking'
+            return detected
+    except Exception as exc:
+        if progress_callback:
+            progress_callback(8)
+        print(f'CV detector unavailable, falling back to sample/mock adapter: {exc}')
+
+    # Fallback for demo and for environments without local CV dependencies/model weights.
     for p in (10, 25, 45, 70, 90):
         time.sleep(0.25)
         if progress_callback:
@@ -58,6 +70,7 @@ def analyze_video(video_path: Path, sample_dir: Path, progress_callback=None) ->
         df = pd.read_csv(sample)
         df = _normalize_columns(df)
         df['filename'] = _display_video_name(video_path.name)
+        df.attrs['mode'] = 'sample-csv-adapter'
         return df
 
     rows = []
@@ -93,4 +106,6 @@ def analyze_video(video_path: Path, sample_dir: Path, progress_callback=None) ->
             'action_price_qr': 'нет',
             'action_code_qr': 'нет',
         })
-    return pd.DataFrame(rows, columns=REQUIRED_COLUMNS)
+    df = pd.DataFrame(rows, columns=REQUIRED_COLUMNS)
+    df.attrs['mode'] = 'generated-mock-adapter'
+    return df

@@ -9,8 +9,8 @@ npm install
 npm run dev
 ```
 
-По умолчанию фронт ходит на `http://localhost:8000`. Можно переопределить:
+По умолчанию фронт ходит на `http://localhost:8765`. Можно переопределить:
 
 ```bash
-VITE_API_URL=http://localhost:8000 npm run dev
+VITE_API_URL=http://localhost:8765 npm run dev
 ```

@@ -27,7 +27,7 @@ type Job = {
   xlsx_url?: string | null;
 };
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8765';
 const RESULT_COLUMNS = [
   'product_name',
   'price_default',

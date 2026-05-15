@@ -62,7 +62,7 @@ def _run_analysis(job_id: str):
                 'price_tags': int(len(df)),
                 'unique_barcodes': int(df['barcode'].astype(str).replace('', pd.NA).nunique()),
                 'avg_confidence': 0.87,
-                'mode': 'mock-or-sample-adapter',
+                'mode': df.attrs.get('mode', 'mock-or-sample-adapter'),
             },
         })
     except Exception as exc:
