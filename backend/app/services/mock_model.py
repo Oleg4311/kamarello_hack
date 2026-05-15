@@ -1,4 +1,5 @@
 import random
+import re
 import time
 from pathlib import Path
 import pandas as pd
@@ -25,11 +26,23 @@ def _normalize_columns(df: pd.DataFrame) -> pd.DataFrame:
             df[col] = ''
     return df[REQUIRED_COLUMNS]
 
-def _find_sample_for_video(video_name: str, sample_dir: Path) -> Path | None:
+UUID_UPLOAD_PREFIX = re.compile(r'^[0-9a-fA-F-]{36}_')
+
+def _display_video_name(video_name: str) -> str:
+    return UUID_UPLOAD_PREFIX.sub('', Path(video_name).name)
+
+def _candidate_stems(video_name: str) -> list[str]:
     stem = Path(video_name).stem
-    candidates = list(sample_dir.rglob(f'{stem}.csv'))
-    if candidates:
-        return candidates[0]
+    stems = [stem, Path(_display_video_name(video_name)).stem]
+    if '_' in stem:
+        stems.append(stem.split('_', 1)[1])
+    return list(dict.fromkeys(stems))
+
+def _find_sample_for_video(video_name: str, sample_dir: Path) -> Path | None:
+    for stem in _candidate_stems(video_name):
+        candidates = sorted(sample_dir.rglob(f'{stem}.csv'))
+        if candidates:
+            return candidates[0]
     all_csv = [p for p in sample_dir.rglob('*.csv') if p.name != 'sample.csv']
     return random.choice(all_csv) if all_csv else None
 
@@ -44,7 +57,7 @@ def analyze_video(video_path: Path, sample_dir: Path, progress_callback=None) ->
     if sample:
         df = pd.read_csv(sample)
         df = _normalize_columns(df)
-        df['filename'] = video_path.name
+        df['filename'] = _display_video_name(video_path.name)
         return df
 
     rows = []

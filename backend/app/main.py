@@ -37,6 +37,7 @@ def _run_analysis(job_id: str):
     try:
         job['status'] = 'processing'
         df = analyze_video(Path(job['upload_path']), SAMPLE_DATA_DIR, lambda p: _set_progress(job_id, p))
+        preview_df = df.head(20).astype(object).where(pd.notna(df.head(20)), None)
         csv_path = REPORT_DIR / f'{job_id}.csv'
         xlsx_path = REPORT_DIR / f'{job_id}.xlsx'
         df.to_csv(csv_path, index=False, encoding='utf-8-sig')
@@ -56,6 +57,7 @@ def _run_analysis(job_id: str):
             'rows_count': len(df),
             'csv_path': str(csv_path),
             'xlsx_path': str(xlsx_path),
+            'preview_rows': preview_df.to_dict(orient='records'),
             'metrics': {
                 'price_tags': int(len(df)),
                 'unique_barcodes': int(df['barcode'].astype(str).replace('', pd.NA).nunique()),
@@ -109,6 +111,7 @@ def get_job(job_id: str):
         filename=job['filename'],
         rows_count=job.get('rows_count', 0),
         metrics=job.get('metrics', {}),
+        preview_rows=job.get('preview_rows', []),
         error=job.get('error'),
         csv_url=f'{base}/download.csv' if job['status'] == 'done' else None,
         xlsx_url=f'{base}/download.xlsx' if job['status'] == 'done' else None,

@@ -1,0 +1,64 @@
+# OS and editors
+.DS_Store
+Thumbs.db
+Desktop.ini
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+*.local
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+env/
+
+# FastAPI runtime data
+backend/storage/
+backend/app/**/__pycache__/
+
+# Node / Vite
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Generated reports and temporary files
+*.log
+*.tmp
+tmp/
+temp/
+task_text.txt
+
+# Large local data and model artifacts
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.webm
+*.zip
+*.pt
+*.pth
+*.onnx
+*.engine
+*.rknn
+
+# Keep small curated fixtures in the repository when explicitly added.
+!backend/sample_data/**/*.csv

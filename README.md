@@ -49,3 +49,25 @@ docker compose up --build
 Она должна вернуть `pandas.DataFrame` с колонками:
 
 `filename, product_name, price_default, price_card, price_discount, barcode, discount_amount, id_sku, print_datetime, code, additional_info, color, special_symbols, frame_timestamp, x_min, y_min, x_max, y_max, qr_code_barcode, price1_qr, price2_qr, price3_qr, price4_qr, wholesale_level_1_count, wholesale_level_1_price, wholesale_level_2_count, wholesale_level_2_price, action_price_qr, action_code_qr`.
+
+## Фактическая архитектура фронта и бэка
+
+### Frontend
+
+- React + Vite SPA в `frontend/src/main.tsx`.
+- Первый экран сразу является рабочим инструментом: загрузка видео, локальное video-preview, запуск анализа, прогресс пайплайна, метрики, превью первых строк результата и скачивание CSV/XLSX.
+- API-адрес задается через `VITE_API_URL`, по умолчанию используется `http://localhost:8000`.
+
+### Backend
+
+- FastAPI-приложение в `backend/app/main.py`.
+- `POST /api/jobs` принимает видео, сохраняет его в `backend/storage/uploads` и запускает обработку в `ThreadPoolExecutor`.
+- `GET /api/jobs/{job_id}` возвращает статус, прогресс, метрики, ссылки на отчеты и `preview_rows` для табличного просмотра на фронте.
+- `GET /api/jobs/{job_id}/download.csv` и `/download.xlsx` отдают готовые файлы из `backend/storage/reports`.
+- Путь к sample-данным можно переопределить переменной окружения `LENTA_SAMPLE_DATA_DIR`; если она не задана, используется `backend/sample_data`.
+
+### Что пока не является боевой CV/OCR-частью
+
+- Реальная детекция ценников, OCR и разбор QR пока заменены sample/mock adapter в `backend/app/services/mock_model.py`.
+- Если загружается видео с именем из набора данных, backend возвращает соответствующий CSV и нормализует все 29 колонок задания.
+- Если совпадения по имени нет, генерируется демонстрационный результат с тем же выходным контрактом.
